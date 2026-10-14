@@ -62,7 +62,9 @@ class ProfileCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    isOffline ? AppStrings.offlineBadge : AppStrings.personalBadge,
+                    isOffline
+                        ? AppStrings.offlineBadge
+                        : AppStrings.personalBadge,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -82,27 +84,48 @@ class ProfileCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Avatar
+                  // Avatar with Google Photo and graceful error fallback
                   CircleAvatar(
-                    radius: 30,
+                    radius: 32,
                     backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 26,
-                      backgroundColor: const Color(0xFFE9F6F7),
-                      backgroundImage: (!isOffline &&
-                              profile.photoUrl != null &&
-                              profile.photoUrl!.isNotEmpty)
-                          ? NetworkImage(profile.photoUrl!)
-                          : null,
-                      child: (isOffline ||
-                              profile.photoUrl == null ||
-                              profile.photoUrl!.isEmpty)
-                          ? const Icon(
-                              Icons.person,
-                              color: AppColors.purple,
-                              size: 30,
-                            )
-                          : null,
+                    child: ClipOval(
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        color: const Color(0xFFE9F6F7),
+                        child: (profile.photoUrl != null &&
+                                profile.photoUrl!.isNotEmpty)
+                            ? Image.network(
+                                profile.photoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.person,
+                                    color: AppColors.purple,
+                                    size: 32,
+                                  );
+                                },
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Icon(
+                                Icons.person,
+                                color: AppColors.purple,
+                                size: 32,
+                              ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -119,20 +142,53 @@ class ProfileCard extends StatelessWidget {
                   const SizedBox(height: 3),
 
                   // User Email
-                  Text(
-                    profile.email.isNotEmpty ? profile.email : 'No email available',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.muted,
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.email_outlined,
+                          size: 14, color: AppColors.muted),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          profile.email.isNotEmpty
+                              ? profile.email
+                              : 'No email available',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
 
-                  // If offline: show only name and email as required
+                  // User Phone (if available)
+                  if (profile.phone != null &&
+                      profile.phone!.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        const Icon(Icons.phone_outlined,
+                            size: 14, color: AppColors.muted),
+                        const SizedBox(width: 5),
+                        Text(
+                          profile.phone!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  // If offline: show notice that data is loaded from local storage
                   if (isOffline) ...[
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.offlineBackground,
                         borderRadius: BorderRadius.circular(8),
@@ -140,10 +196,11 @@ class ProfileCard extends StatelessWidget {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.storage_rounded, size: 14, color: AppColors.offline),
+                          Icon(Icons.storage_rounded,
+                              size: 14, color: AppColors.offline),
                           SizedBox(width: 6),
                           Text(
-                            'Name and email loaded from local cache',
+                            'Name & email loaded from local cache',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -158,12 +215,14 @@ class ProfileCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       profile.jobTitle,
-                      style: const TextStyle(fontSize: 11, color: AppColors.ink),
+                      style:
+                          const TextStyle(fontSize: 11, color: AppColors.ink),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       profile.location,
-                      style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.muted),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),

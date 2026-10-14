@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/home/home_screen.dart';
 import '../screens/login/login_screen.dart';
+import '../screens/splash/splash_screen.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -43,12 +44,23 @@ class AuthController extends GetxController {
     userPhone.value = prefs.getString('userPhone') ?? '';
   }
 
-  Future<void> _saveProfile(User user) async {
+  Future<void> _saveProfile(
+    User user, {
+    String? fallbackName,
+    String? fallbackEmail,
+    String? fallbackPhoto,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
 
-    final name = user.displayName;
-    final email = user.email;
-    final photo = user.photoURL;
+    final name = (user.displayName != null && user.displayName!.isNotEmpty)
+        ? user.displayName
+        : fallbackName;
+    final email = (user.email != null && user.email!.isNotEmpty)
+        ? user.email
+        : fallbackEmail;
+    final photo = (user.photoURL != null && user.photoURL!.isNotEmpty)
+        ? user.photoURL
+        : fallbackPhoto;
     final phone = user.phoneNumber;
 
     if (name != null && name.isNotEmpty) {
@@ -75,6 +87,9 @@ class AuthController extends GetxController {
 
       if (user != null) {
         await _saveProfile(user);
+        Get.offAll(() => const HomeScreen());
+      } else if (userName.value.isNotEmpty && userEmail.value.isNotEmpty) {
+        // Offline cache exists from previous login
         Get.offAll(() => const HomeScreen());
       } else {
         Get.offAll(() => const LoginScreen());
@@ -129,7 +144,12 @@ class AuthController extends GetxController {
         throw Exception('Firebase user information was not returned.');
       }
 
-      await _saveProfile(user);
+      await _saveProfile(
+        user,
+        fallbackName: googleUser.displayName,
+        fallbackEmail: googleUser.email,
+        fallbackPhoto: googleUser.photoUrl,
+      );
 
       Get.offAll(() => const HomeScreen());
       Get.snackbar(
@@ -200,7 +220,8 @@ class AuthController extends GetxController {
       userPhoto.value = '';
       userPhone.value = '';
 
-      Get.offAll(() => const LoginScreen());
+      // Navigate to default Splash Screen as requested
+      Get.offAll(() => const SplashScreen());
     } catch (e) {
       Get.snackbar(
         'Logout failed',

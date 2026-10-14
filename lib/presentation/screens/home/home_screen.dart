@@ -82,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final profile = _repository.getProfile(
                                   name: authController.userName.value,
                                   email: authController.userEmail.value,
+                                  phone: authController.userPhone.value,
                                   photoUrl: authController.userPhoto.value,
                                 );
 

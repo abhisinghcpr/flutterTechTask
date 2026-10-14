@@ -2,6 +2,7 @@ class ProfileModel {
   const ProfileModel({
     required this.name,
     required this.email,
+    this.phone,
     this.photoUrl,
     this.jobTitle = 'Software Engineer at Troology Technologies',
     this.location = 'Ahmedabad',
@@ -12,6 +13,7 @@ class ProfileModel {
 
   final String name;
   final String email;
+  final String? phone;
   final String? photoUrl;
   final String jobTitle;
   final String location;
@@ -22,6 +24,7 @@ class ProfileModel {
   ProfileModel copyWith({
     String? name,
     String? email,
+    String? phone,
     String? photoUrl,
     String? jobTitle,
     String? location,
@@ -32,6 +35,7 @@ class ProfileModel {
     return ProfileModel(
       name: name ?? this.name,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
       photoUrl: photoUrl ?? this.photoUrl,
       jobTitle: jobTitle ?? this.jobTitle,
       location: location ?? this.location,

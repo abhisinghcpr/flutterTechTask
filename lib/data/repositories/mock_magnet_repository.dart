@@ -12,11 +12,13 @@ class MockMagnetRepository {
   ProfileModel getProfile({
     String? name,
     String? email,
+    String? phone,
     String? photoUrl,
   }) {
     return ProfileModel(
       name: (name != null && name.trim().isNotEmpty) ? name : 'Rashmika Singh',
       email: (email != null && email.trim().isNotEmpty) ? email : 'rashmika@example.com',
+      phone: phone,
       photoUrl: photoUrl,
       jobTitle: AppStrings.defaultJobTitle,
       location: AppStrings.defaultLocation,
